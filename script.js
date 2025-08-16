@@ -193,10 +193,19 @@ const nextButton = document.querySelector(".next");
 let currentQuestionIndex = 0;
 let score = 0;
 
+//Fisher-Yates Shuffle
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
 function startQuiz() {
   currentQuestionIndex = 0;
   score = 0;
   nextButton.innerHTML = "Next";
+  shuffleArray(questions)
   showQuestion();
 }
 
@@ -212,9 +221,6 @@ function showQuestion() {
     button.innerHTML = answer.text;
     button.dataset.correct = answer.correct;
     answersContainer.appendChild(button);
-    if (answer.correct) {
-      button.dataset.correct = answer.correct;
-    }
   });
 }
 
@@ -227,22 +233,23 @@ function resetAnswers() {
 
 function selectAnswers(e) {
   const selectedBtn = e.target;
-  if (selectedBtn.classList.contains("option")) {
-    const isCorrect = selectedBtn.dataset.correct === "true";
-    if (isCorrect) {
-      selectedBtn.classList.add("correct");
-      score++;
-    } else {
-      selectedBtn.classList.add("incorrect");
-    }
-    Array.from(answersContainer.children).forEach((button) => {
-      if (button.dataset.correct === "true") {
-        button.classList.add("correct");
-      }
-      button.disabled = "true";
-      nextButton.style.display = "block";
-    });
+  if (!selectedBtn.classList.contains("option")) {
+    return;
   }
+  const isCorrect = selectedBtn.dataset.correct === "true";
+  if (isCorrect) {
+    selectedBtn.classList.add("correct");
+    score++;
+  } else {
+    selectedBtn.classList.add("incorrect");
+  }
+  Array.from(answersContainer.children).forEach((button) => {
+    if (button.dataset.correct === "true") {
+      button.classList.add("correct");
+    }
+    button.disabled = true;
+    nextButton.style.display = "block";
+  });
 }
 
 function showScore() {
@@ -256,7 +263,6 @@ function handleNextBtn() {
   currentQuestionIndex++;
   if (currentQuestionIndex < questions.length) {
     showQuestion();
-    // startQuiz();
   } else {
     showScore();
   }
